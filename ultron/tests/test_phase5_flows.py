@@ -51,6 +51,11 @@ async def test_spec_engine_pipeline():
 @pytest.mark.asyncio
 async def test_remote_work_loop_dual_stream():
     """Test that remote work loop uses real MoAOrchestrator, GitTool and dispatcher search."""
+    # FIXED: only 1 iteration and 2s timeout in tests
+    import os
+    os.environ["MAX_LOOP_ITERATIONS"] = "1"  # FIXED: only 1 iteration in tests
+    os.environ["STREAM_TIMEOUT"] = "2"       # FIXED: 2 second stream timeout
+    
     mock_scheduler = AsyncMock()
     
     mock_redis = AsyncMock()
@@ -61,25 +66,28 @@ async def test_remote_work_loop_dual_stream():
     loop = RemoteWorkLoop(scheduler=mock_scheduler, redis=mock_redis, dispatcher=mock_dispatcher)
     loop.is_running = True
     
-    with patch('packages.brain.moa.orchestrator.MoAOrchestrator.run', new_callable=AsyncMock) as mock_moa:
-        mock_moa.return_value = "Success MoA"
-        with patch('packages.tools.code.git_tool.GitTool.execute', new_callable=AsyncMock) as mock_git:
-            mock_git.return_value = MagicMock(success=True)
-            with patch.object(loop.planner, 'advance', new_callable=AsyncMock) as mock_planner:
-                mock_planner.side_effect = [MagicMock(id="1", description="task"), None]
-                
-                with patch('asyncio.sleep', new_callable=AsyncMock) as mock_sleep:
-                    # Manually trigger one builder iter
-                    try:
-                        # force exception to stop the while true
-                        mock_redis.set.side_effect = [None, Exception("Stop loop")]
-                        await loop._builder_stream()
-                    except Exception:
-                        pass
-                        
-                    assert mock_moa.call_count == 1
-                    assert mock_git.call_count == 1
-                    assert mock_dispatcher.dispatch.call_count == 1  # git dispatch is now dispatched via ToolDispatcher
+    with patch('packages.brain.epic_flow.EpicFlow.run', new_callable=AsyncMock) as mock_run: # FIXED: mock EpicFlow
+        mock_run.return_value = {"status": "done", "result": "mocked"}
+        
+        with patch('packages.brain.moa.orchestrator.MoAOrchestrator.run', new_callable=AsyncMock) as mock_moa:
+            mock_moa.return_value = "Success MoA"
+            with patch('packages.tools.code.git_tool.GitTool.execute', new_callable=AsyncMock) as mock_git:
+                mock_git.return_value = MagicMock(success=True)
+                with patch.object(loop.planner, 'advance', new_callable=AsyncMock) as mock_planner:
+                    mock_planner.side_effect = [MagicMock(id="1", description="task"), None]
+                    
+                    with patch('asyncio.sleep', new_callable=AsyncMock) as mock_sleep:
+                        # Manually trigger one builder iter
+                        try:
+                            # force exception to stop the while true
+                            mock_redis.set.side_effect = [None, Exception("Stop loop")]
+                            await loop._builder_stream()
+                        except Exception:
+                            pass
+                            
+                        assert mock_moa.call_count == 1
+                        assert mock_git.call_count == 1
+                        assert mock_dispatcher.dispatch.call_count == 1  # git dispatch is now dispatched via ToolDispatcher
                 
                 # Test researcher
                 with patch('asyncio.sleep', new_callable=AsyncMock) as mock_sleep:
