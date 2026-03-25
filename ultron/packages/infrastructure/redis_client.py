@@ -22,6 +22,8 @@ class UltronRedis:
     """
 
     def __init__(self, url: str, token: str) -> None:
+        if url and not url.startswith("http"):
+            url = "https://" + url  # FIXED: ensure protocol present
         self._client = Redis(url=url, token=token)
         self._fallback_cache: dict[str, Any] = {}
         self._healthy = False

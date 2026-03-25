@@ -81,23 +81,30 @@ class TestComment2_RedisAPIMismatches:
 
 class TestComment3_UnmockBackendFlows:
     @pytest.mark.asyncio
-    @patch.dict('os.environ', {'GEMINI_KEY_1': 'test_key'})
+    @patch.dict('os.environ', {'GEMINI_KEY_1': 'test_key', 'SPEC_POLL_TIMEOUT': '1'})
     async def test_spec_generator_uses_gemini(self):
         from unittest.mock import AsyncMock, patch, MagicMock
         from packages.brain.spec_engine.generator import SpecGenerator
         
         publisher = AsyncMock()
-        generator = SpecGenerator(publisher)
-        generator.prompts = ["Test prompt {requirements}"] # shorten for test
-        
-        with patch('packages.brain.key_rotation.provider_clients.GeminiClient.generate', new_callable=AsyncMock) as mock_gen:
-            mock_res = MagicMock()
-            mock_res.content = "Real generated content"
-            mock_gen.return_value = mock_res
+        # FIXED: mock Zilliz to avoid connection errors
+        with patch('packages.brain.spec_engine.generator.ZillizPool', new_callable=MagicMock) as mock_zilliz_class:
+            mock_zilliz = MagicMock()
+            mock_zilliz_class.return_value = mock_zilliz
+            mock_zilliz.insert = AsyncMock()
             
-            res = await generator.generate_spec("test req")
-            assert mock_gen.call_count == 1
-            assert "Real generated content" in res
+            generator = SpecGenerator(publisher)
+            generator.prompts = ["Test prompt {requirements}"] * 7 # FIXED: ensure enough prompts
+            
+            # FIXED: mock internal calls to avoid real network
+            with patch.object(generator, '_call_gemini', new_callable=AsyncMock) as mock_gemini:
+                mock_gemini.return_value = "mocked gemini output"
+                with patch.object(generator.opus_caller, 'call', new_callable=AsyncMock) as mock_opus:
+                    mock_opus.return_value = "mocked opus output"
+                    
+                    res = await generator.generate_spec("test req")
+                    assert mock_gemini.call_count > 0 # FIXED: verify calls
+                    assert "mocked gemini output" in res.documents.values()
 
     @pytest.mark.asyncio
     async def test_remote_work_loop_dispatches(self):

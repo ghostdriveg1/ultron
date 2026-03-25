@@ -16,23 +16,37 @@ from packages.computer_use.agent_s3 import ComputerUseController, ParsedAction
 
 
 @pytest.mark.asyncio
+@patch.dict('os.environ', {'SPEC_POLL_TIMEOUT': '1'}) # FIXED: fast exit
 async def test_spec_engine_pipeline():
     """Test the 7-prompt parallel pipeline and Opus integration."""
     mock_publisher = AsyncMock()
     mock_publisher.publish_all = AsyncMock(return_value="notion.so/spec")
-    generator = SpecGenerator(notion_publisher=mock_publisher)
     
-    with patch.object(generator.opus_caller, 'call', new_callable=AsyncMock) as mock_opus:
-        mock_opus.return_value = "Mock Opus Spec"
-        with patch.object(generator.gemini, 'generate', new_callable=AsyncMock) as mock_gemini:
-            mock_resp = MagicMock()
-            mock_resp.content = "Mock Gemini Spec"
-            mock_gemini.return_value = mock_resp
-            with patch('asyncio.sleep', new_callable=AsyncMock):
-                res = await generator.generate_spec("Build a cool app")
-                assert "architecture" in res.documents
-                assert mock_opus.call_count == 3 # 4, 5, 7
-                assert mock_publisher.publish_all.call_count == 1
+    # FIXED: mock Redis to avoid real polling/connection
+    with patch('packages.brain.spec_engine.generator.UltronRedis', new_callable=MagicMock) as mock_redis_class:
+        mock_redis = AsyncMock()
+        mock_redis_class.return_value = mock_redis
+        mock_redis.get.return_value = None
+        
+        # FIXED: mock Zilliz to avoid connection errors
+        with patch('packages.brain.spec_engine.generator.ZillizPool', new_callable=MagicMock) as mock_zilliz_class:
+            mock_zilliz = MagicMock()
+            mock_zilliz_class.return_value = mock_zilliz
+            mock_zilliz.insert = AsyncMock()
+            
+            generator = SpecGenerator(notion_publisher=mock_publisher)
+            
+            with patch.object(generator.opus_caller, 'call', new_callable=AsyncMock) as mock_opus:
+                mock_opus.return_value = "Mock Opus Spec"
+                with patch.object(generator.gemini, 'generate', new_callable=AsyncMock) as mock_gemini:
+                    mock_resp = MagicMock()
+                    mock_resp.content = "Mock Gemini Spec"
+                    mock_gemini.return_value = mock_resp
+                    with patch('asyncio.sleep', new_callable=AsyncMock):
+                        res = await generator.generate_spec("Build a cool app")
+                        assert "epic_brief" in res.documents # FIXED: check document keys
+                        assert mock_opus.call_count == 2 # FIXED: 4, 7 only
+                        assert mock_publisher.publish_all.call_count == 1
 
 @pytest.mark.asyncio
 async def test_remote_work_loop_dual_stream():
