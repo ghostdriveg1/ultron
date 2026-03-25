@@ -1,0 +1,22 @@
+name = "ultron-brain"
+main = "src/index.ts"
+compatibility_date = "2026-03-23"
+
+# ─── KV Namespace Binding ────────────────────────────────────
+[[kv_namespaces]]
+binding = "KV"
+id = "YOUR_KV_NAMESPACE_ID"
+preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
+
+# ─── Routes ──────────────────────────────────────────────────
+# routes = [{ pattern = "ultron.yourdomain.com/*", zone_name = "yourdomain.com" }]
+
+# ─── Secrets (set via `wrangler secret put`) ─────────────────
+# DISCORD_BOT_TOKEN
+# DISCORD_PUBLIC_KEY
+# DISCORD_GHOST_USER_ID
+# CLAWCLOUD_BRAIN_URL
+# QSTASH_URL
+# QSTASH_TOKEN
+# WORKER_ENCRYPTION_KEY
+# INTERNAL_AUTH_TOKEN

@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ultron"
+version = "3.1.0"
+description = "Ultron v3 — Autonomous AI Agent System"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Ghost", email = "ghost@ultron.dev"}
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+    "packages.brain",
+    "packages.brain.*",
+    "packages.memory",
+    "packages.memory.*",
+    "packages.tools",
+    "packages.tools.*",
+    "packages.execution",
+    "packages.execution.*",
+    "packages.self_improvement",
+    "packages.self_improvement.*",
+    "packages.interface",
+    "packages.interface.*",
+    "packages.infrastructure",
+    "packages.infrastructure.*",
+    "packages.circuit_breaker",
+    "packages.circuit_breaker.*",
+    "packages.computer_use",
+    "packages.computer_use.*",
+    "packages.mcp_gateway",
+    "packages.mcp_gateway.*",
+    "packages.entropy_engine",
+    "packages.entropy_engine.*",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

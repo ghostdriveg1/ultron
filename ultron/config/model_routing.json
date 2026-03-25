@@ -1,0 +1,51 @@
+{
+  "instant_mode": {
+    "primary": "gemini-2.5-pro",
+    "fallback": "gemini-2.5-flash",
+    "max_tokens": 2000,
+    "thinking_injection": true
+  },
+  "proposers": {
+    "architect": { "model": "gemini-2.5-pro", "provider": "google" },
+    "engineer": { "model": "deepseek-coder-v3", "provider": "groq" },
+    "qa_breaker": { "model": "gemini-2.5-pro", "provider": "google", "instance": 2 },
+    "researcher": { "model": "grok-4.1", "provider": "xai" },
+    "reasoner": { "model": "deepseek-r1", "provider": "groq" },
+    "devils_advocate": { "model": "meta-llama/llama-4-maverick", "provider": "together" },
+    "domain_expert": { "model": "gemini-3.1-pro", "provider": "google_student" },
+    "fast_validator": { "model": "llama-3.3-70b", "provider": "cerebras" }
+  },
+  "self_consistency": {
+    "models": [
+      { "model": "gemini-2.5-pro", "provider": "google" },
+      { "model": "deepseek-r1", "provider": "groq" },
+      { "model": "llama-3.3-70b", "provider": "groq" },
+      { "model": "meta-llama/llama-4-maverick", "provider": "together" },
+      { "model": "gemini-2.5-flash", "provider": "google" }
+    ],
+    "min_agreement": 3,
+    "total_checks": 5
+  },
+  "critic": {
+    "model": "claude-sonnet-4-6",
+    "provider": "puter"
+  },
+  "synthesizer": {
+    "model": "gemini-3-pro",
+    "provider": "google_student"
+  },
+  "oracle": {
+    "model": "claude-opus-4-6",
+    "provider": "puter",
+    "max_calls_per_day": 8
+  },
+  "spec_engine": {
+    "epic_brief": "gemini-3-pro",
+    "core_flows": "gemini-2.5-pro",
+    "tech_plan": "gemini-3-pro",
+    "arch_validation": "claude-opus-4-6",
+    "ticket_breakdown": "gemini-2.5-pro",
+    "cross_artifact": "gemini-2.5-pro",
+    "ultron_brief": "claude-opus-4-6"
+  }
+}

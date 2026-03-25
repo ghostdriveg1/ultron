@@ -1,0 +1,265 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron
+configfile: pyproject.toml
+plugins: anyio-4.8.0, dash-3.0.3, langsmith-0.4.6, asyncio-1.3.0
+asyncio: mode=auto, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 10 items
+
+tests\test_phase5_fixes.py F..FF...FF                                    [100%]
+
+================================== FAILURES ===================================
+______ TestComment1_ToolAutoDiscovery.test_registry_auto_discovers_tools ______
+
+self = <test_phase5_fixes.TestComment1_ToolAutoDiscovery object at 0x00000198948BB220>
+
+    def test_registry_auto_discovers_tools(self):
+        # registry should auto-discover on __init__
+>       from packages.tools import registry
+
+tests\test_phase5_fixes.py:10: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+packages\tools\__init__.py:7: in <module>
+    registry.auto_discover()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <packages.tools.registry.ToolRegistry object at 0x00000198948BBC10>
+
+    def auto_discover(self) -> None:
+        """Imports submodules under packages/tools/ and registers BaseTool subclasses."""
+        import packages.tools.documents
+        import packages.tools.code
+        import packages.tools.web
+        import packages.tools.che
+    
+        packages_to_scan = [
+>           packages.tools.documents,
+            packages.tools.code,
+            packages.tools.web,
+            packages.tools.che
+        ]
+E       AttributeError: module 'packages' has no attribute 'tools'
+
+packages\tools\registry.py:50: AttributeError
+___ TestComment2_RedisAPIMismatches.test_bifrost_logging_no_attribute_error ___
+
+self = <test_phase5_fixes.TestComment2_RedisAPIMismatches object at 0x00000198948BB8E0>
+
+    @pytest.mark.asyncio
+    async def test_bifrost_logging_no_attribute_error(self):
+        from unittest.mock import AsyncMock, patch, MagicMock
+        from packages.mcp_gateway.bifrost_client import BifrostClient
+    
+        auth_mock = AsyncMock()
+        auth_mock.get_auth_headers.return_value = {}
+        health_mock = AsyncMock()
+        health_mock.get_status.return_value = "HEALTHY"
+        redis_mock = AsyncMock()
+        redis_mock.incr.return_value = 1
+    
+        client = BifrostClient(auth_mock, health_mock, redis_mock)
+    
+        # We need a dummy server config
+        class DummyConfig:
+            name = "test_server"
+            url = "http://localhost"
+            fallback = None
+            rate_limit_rpm = 600
+        client._servers_config = {"test_server": DummyConfig()}
+    
+        with patch('packages.mcp_gateway.bifrost_client.httpx.AsyncClient') as mock_client_class:
+            mock_client = AsyncMock()
+            mock_client_class.return_value.__aenter__.return_value = mock_client
+            mock_resp = MagicMock()
+            mock_resp.json.return_value = {"result": "ok"}
+            mock_client.post.return_value = mock_resp
+    
+>           res = await client.call("test_server", "test_tool", {})
+
+tests\test_phase5_fixes.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <packages.mcp_gateway.bifrost_client.BifrostClient object at 0x000001989AE7D8D0>
+server_name = 'test_server', tool_name = 'test_tool', params = {}
+
+    async def call(self, server_name: str, tool_name: str, params: dict) -> dict:
+        start_time = time.time()
+    
+        # 1. Check health
+        status = await self.health.get_status(server_name)
+        if status == "UNHEALTHY":
+            config = self._servers_config.get(server_name)
+            if config and config.fallback:
+                # Naive fallback routing
+                server_name = config.fallback
+                status = await self.health.get_status(server_name)
+                if status == "UNHEALTHY":
+                    raise MCPServerUnavailableError(f"Server {server_name} and fallback are UNHEALTHY")
+            else:
+                raise MCPServerUnavailableError(f"Server {server_name} is UNHEALTHY (no fallback)")
+    
+        # 5. Enforce rate limiting
+        config = self._servers_config.get(server_name)
+        limit = config.rate_limit_rpm if config else 600
+        rpm_key = f"mcp_rpm:{server_name}"
+    
+        current_calls = await self.redis.incr(rpm_key)
+        if current_calls == 1:
+            await self.redis.expire(rpm_key, 60)
+    
+        if current_calls > limit:
+            raise RateLimitExceededError(f"Rate limit exceeded for {server_name}")
+    
+        # 2. Get auth headers
+        headers = self.auth.get_auth_headers(server_name)
+>       headers["Content-Type"] = "application/json"
+E       TypeError: 'coroutine' object does not support item assignment
+
+packages\mcp_gateway\bifrost_client.py:53: TypeError
+_______ TestComment3_UnmockBackendFlows.test_spec_generator_uses_gemini _______
+
+self = <test_phase5_fixes.TestComment3_UnmockBackendFlows object at 0x00000198948BBD00>
+
+    @pytest.mark.asyncio
+    async def test_spec_generator_uses_gemini(self):
+        from unittest.mock import AsyncMock, patch, MagicMock
+        from packages.brain.spec_engine.generator import SpecGenerator
+    
+        publisher = AsyncMock()
+        generator = SpecGenerator(publisher)
+        generator.prompts = ["Test prompt {requirements}"] # shorten for test
+    
+        with patch('packages.brain.key_rotation.provider_clients.GeminiClient.generate', new_callable=AsyncMock) as mock_gen:
+            mock_res = MagicMock()
+            mock_res.content = "Real generated content"
+            mock_gen.return_value = mock_res
+    
+            res = await generator.generate_spec("test req")
+>           assert mock_gen.call_count == 1
+E           AssertionError: assert 0 == 1
+E            +  where 0 = <AsyncMock name='generate' id='1754945018448'>.call_count
+
+tests\test_phase5_fixes.py:97: AssertionError
+---------------------------- Captured stdout call -----------------------------
+Executing Spec Engine Prompt 1...
+Validation failed for stage 1. Triggering LATS retry logic.
+__ TestComment4_DispatcherValidation.test_dispatcher_validates_output_schema __
+
+self = <test_phase5_fixes.TestComment4_DispatcherValidation object at 0x00000198948B4B80>
+
+            await dispatcher.dispatch("test_tool", {"val": "not_an_int"})
+    
+    @pytest.mark.asyncio
+    async def test_dispatcher_validates_output_schema(self):
+        from pydantic import BaseModel, ValidationError
+        from unittest.mock import AsyncMock, MagicMock
+        from packages.tools.dispatcher import ToolDispatcher
+    
+        class Input(BaseModel): pass
+        class Output(BaseModel):
+            result: int
+    
+        mock_registry = MagicMock()
+        mock_tool = MagicMock()
+        mock_tool.input_schema = Input
+        mock_tool.output_schema = Output
+        mock_tool.requires_ghost_confirm = False
+    
+        class BadResult(BaseModel):
+            # Bypass strict validation at creation via un-typed
+            pass
+    
+        # Manually constructing a bad result dict to simulate a loose tool or bypassed behavior
+        bad_result = {"result": "not_an_int_at_all"}
+        mock_tool.execute = AsyncMock(return_value=bad_result)
+        mock_registry.get.return_value = mock_tool
+    
+        dispatcher = ToolDispatcher(mock_registry, MagicMock(), AsyncMock(), AsyncMock())
+>       dispatcher.permission_checker.check.return_value = "ALLOW"
+
+tests\test_phase5_fixes.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <packages.tools.dispatcher.ToolDispatcher object at 0x000001989C1AEEC0>
+tool_name = 'test_tool', params = {}, entropy_score = 0.0
+
+    async def dispatch(self, tool_name: str, params: Dict[str, Any], entropy_score: float = 0.0) -> BaseModel:
+        start_time = time.time()
+        tool = self.registry.get(tool_name)
+    
+        try:
+            validated_params = tool.input_schema.model_validate(params)
+        except ValidationError as e:
+            # Re-raise directly to preserve error context
+            raise e
+    
+        perm_action = self.permission_checker.check(tool_name, tool.permission_level, entropy_score)
+    
+        if perm_action == "DENY":
+            raise PermissionDeniedError(f"Execution of '{tool_name}' denied (Entropy: {entropy_score})")
+        elif perm_action == "CONFIRM" or tool.requires_ghost_confirm:
+            confirmed = await self._request_ghost_confirmation(tool_name, params)
+            if not confirmed:
+>               raise PermissionDeniedError(f"Ghost confirmation denied or timed out for '{tool_name}'")
+E               packages.tools.dispatcher.PermissionDeniedError: Ghost confirmation denied or timed out for 'test_tool'
+
+packages\tools\dispatcher.py:45: PermissionDeniedError
+___________________ TestComment6_NISTTool.test_nist_parsing ___________________
+
+self = <test_phase5_fixes.TestComment6_NISTTool object at 0x00000198948B4FA0>
+
+                await dispatcher.dispatch("test_tool", {})
+    
+    class TestComment6_NISTTool:
+>       @pytest.mark.asyncio
+
+tests\test_phase5_fixes.py:197: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+packages\tools\che\nist_mcp.py:6: in <module>
+    from packages.tools.schemas.nist_schema import NISTInput, NISTOutput
+packages\tools\__init__.py:7: in <module>
+    registry.auto_discover()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <packages.tools.registry.ToolRegistry object at 0x00000198948BBC10>
+
+    def auto_discover(self) -> None:
+        """Imports submodules under packages/tools/ and registers BaseTool subclasses."""
+        from packages.tools import documents, code, web, che
+    
+        packages_to_scan = [
+            documents,
+            code,
+            web,
+>           che
+        ]
+E       AttributeError: module 'packages' has no attribute 'tools'
+
+packages\tools\registry.py:50: AttributeError
+============================== warnings summary ===============================
+tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_agent_s3_grounding
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\..\packages\computer_use\agent_s3.py:30: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    self.xvfb.start()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_agent_s3_grounding
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\..\packages\computer_use\agent_s3.py:68: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    self.xvfb.stop()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_phase5_fixes.py::TestComment6_NISTTool::test_nist_parsing
+  C:\Users\LOQ\AppData\Local\Programs\Python\Python310\lib\sre_compile.py:541: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    charsetappend((op, av))
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_phase5_fixes.py::TestComment1_ToolAutoDiscovery::test_registry_auto_discovers_tools
+FAILED tests/test_phase5_fixes.py::TestComment2_RedisAPIMismatches::test_bifrost_logging_no_attribute_error
+FAILED tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_spec_generator_uses_gemini
+FAILED tests/test_phase5_fixes.py::TestComment4_DispatcherValidation::test_dispatcher_validates_output_schema
+FAILED tests/test_phase5_fixes.py::TestComment6_NISTTool::test_nist_parsing
+============= 5 failed, 5 passed, 3 warnings in 301.81s (0:05:01) =============

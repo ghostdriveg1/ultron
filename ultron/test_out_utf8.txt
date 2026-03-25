@@ -1,0 +1,167 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron
+configfile: pyproject.toml
+plugins: anyio-4.8.0, dash-3.0.3, langsmith-0.4.6
+collected 10 items
+
+tests\test_phase5_fixes.py FFFFFFFFFF                                    [100%]
+
+================================== FAILURES ===================================
+______ TestComment1_ToolAutoDiscovery.test_registry_auto_discovers_tools ______
+
+self = <test_phase5_fixes.TestComment1_ToolAutoDiscovery object at 0x000002035433B010>
+
+    def test_registry_auto_discovers_tools(self):
+        # registry should auto-discover on __init__
+>       from packages.tools import registry
+
+tests\test_phase5_fixes.py:10: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+packages\tools\__init__.py:3: in <module>
+    from .dispatcher import ToolDispatcher
+packages\tools\dispatcher.py:11: in <module>
+    from packages.infrastructure.redis_client import UltronRedis
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    """
+    Ultron v3 ù Redis Client (Upstash)
+    Wraps upstash_redis.Redis with tenacity retry and in-memory fallback cache.
+    """
+    
+    import logging
+    import sys
+    from typing import Any, Optional
+    
+    from tenacity import retry, stop_after_attempt, wait_exponential
+>   from upstash_redis import Redis
+E   ModuleNotFoundError: No module named 'upstash_redis'
+
+packages\infrastructure\redis_client.py:11: ModuleNotFoundError
+___ TestComment2_RedisAPIMismatches.test_heartbeat_tick_no_attribute_error ____
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+____ TestComment2_RedisAPIMismatches.test_scheduler_pop_no_attribute_error ____
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+___ TestComment2_RedisAPIMismatches.test_bifrost_logging_no_attribute_error ___
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+_______ TestComment3_UnmockBackendFlows.test_spec_generator_uses_gemini _______
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+______ TestComment3_UnmockBackendFlows.test_remote_work_loop_dispatches _______
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+___________ TestComment3_UnmockBackendFlows.test_agent_s3_grounding ___________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+_ TestComment4_DispatcherValidation.test_dispatcher_preserves_validation_error _
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+__ TestComment4_DispatcherValidation.test_dispatcher_validates_output_schema __
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+___________________ TestComment6_NISTTool.test_nist_parsing ___________________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+============================== warnings summary ===============================
+..\..\..\..\AppData\Local\Programs\Python\Python310\lib\site-packages\_pytest\config\__init__.py:1428
+  C:\Users\LOQ\AppData\Local\Programs\Python\Python310\lib\site-packages\_pytest\config\__init__.py:1428: PytestConfigWarning: Unknown config option: asyncio_mode
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests\test_phase5_fixes.py:21
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\test_phase5_fixes.py:21: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_phase5_fixes.py:34
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\test_phase5_fixes.py:34: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_phase5_fixes.py:48
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\test_phase5_fixes.py:48: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_phase5_fixes.py:82
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\test_phase5_fixes.py:82: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_phase5_fixes.py:100
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\test_phase5_fixes.py:100: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_phase5_fixes.py:124
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\test_phase5_fixes.py:124: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_phase5_fixes.py:144
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\test_phase5_fixes.py:144: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_phase5_fixes.py:163
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\test_phase5_fixes.py:163: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_phase5_fixes.py:194
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\test_phase5_fixes.py:194: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_phase5_fixes.py::TestComment1_ToolAutoDiscovery::test_registry_auto_discovers_tools
+FAILED tests/test_phase5_fixes.py::TestComment2_RedisAPIMismatches::test_heartbeat_tick_no_attribute_error
+FAILED tests/test_phase5_fixes.py::TestComment2_RedisAPIMismatches::test_scheduler_pop_no_attribute_error
+FAILED tests/test_phase5_fixes.py::TestComment2_RedisAPIMismatches::test_bifrost_logging_no_attribute_error
+FAILED tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_spec_generator_uses_gemini
+FAILED tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_remote_work_loop_dispatches
+FAILED tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_agent_s3_grounding
+FAILED tests/test_phase5_fixes.py::TestComment4_DispatcherValidation::test_dispatcher_preserves_validation_error
+FAILED tests/test_phase5_fixes.py::TestComment4_DispatcherValidation::test_dispatcher_validates_output_schema
+FAILED tests/test_phase5_fixes.py::TestComment6_NISTTool::test_nist_parsing
+======================= 10 failed, 10 warnings in 0.58s =======================

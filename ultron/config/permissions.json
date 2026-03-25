@@ -1,0 +1,28 @@
+{
+  "token_budgets": {
+    "simple_task": 10000,
+    "complex_task": 100000,
+    "critical_task": 200000,
+    "daily_total": 2000000
+  },
+  "ALWAYS_ALLOWED": [
+    "read_file",
+    "search_web",
+    "memory_read",
+    "send_discord"
+  ],
+  "ENTROPY_CHECKED": [
+    "write_code",
+    "create_document",
+    "commit_github"
+  ],
+  "GHOST_CONFIRM": [
+    "delete_file",
+    "deploy",
+    "delete_repo"
+  ],
+  "NEVER": [
+    "delete_account",
+    "billing_access"
+  ]
+}

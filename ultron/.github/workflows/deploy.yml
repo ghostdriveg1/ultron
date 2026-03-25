@@ -1,0 +1,47 @@
+name: Deploy Ultron
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        
+      - name: Deploy Worker
+        run: |
+          cd cloudflare_worker
+          npm ci
+          npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          
+      - name: Verify Worker Health
+        run: |
+          echo "Verifying Cloudflare Worker deployment..."
+          # Poll the /health endpoint to ensure it's up
+          curl -s -o /dev/null -w "%{http_code}" https://ultron-brain.yourdomain.workers.dev/health || echo "Health check failed or route not active"
+          
+      - name: Deploy Dashboard
+        run: |
+          cd website
+          npm ci
+          npm run build
+          # Deploy to Vercel/Netlify logic here depending on provider

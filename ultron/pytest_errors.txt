@@ -1,0 +1,76 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron
+configfile: pyproject.toml
+plugins: anyio-4.8.0, dash-3.0.3, langsmith-0.4.6, asyncio-1.3.0
+asyncio: mode=auto, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 10 items
+
+tests\test_phase5_fixes.py F..FF...FF                                    [100%]
+
+================================== FAILURES ===================================
+______ TestComment1_ToolAutoDiscovery.test_registry_auto_discovers_tools ______
+tests\test_phase5_fixes.py:10: in test_registry_auto_discovers_tools
+    from packages.tools import registry
+packages\tools\__init__.py:7: in <module>
+    registry.auto_discover()
+packages\tools\registry.py:50: in auto_discover
+    packages.tools.documents,
+E   AttributeError: module 'packages' has no attribute 'tools'
+___ TestComment2_RedisAPIMismatches.test_bifrost_logging_no_attribute_error ___
+tests\test_phase5_fixes.py:77: in test_bifrost_logging_no_attribute_error
+    res = await client.call("test_server", "test_tool", {})
+packages\mcp_gateway\bifrost_client.py:53: in call
+    headers["Content-Type"] = "application/json"
+E   TypeError: 'coroutine' object does not support item assignment
+_______ TestComment3_UnmockBackendFlows.test_spec_generator_uses_gemini _______
+tests\test_phase5_fixes.py:97: in test_spec_generator_uses_gemini
+    assert mock_gen.call_count == 1
+E   AssertionError: assert 0 == 1
+E    +  where 0 = <AsyncMock name='generate' id='1201829410080'>.call_count
+---------------------------- Captured stdout call -----------------------------
+Executing Spec Engine Prompt 1...
+Validation failed for stage 1. Triggering LATS retry logic.
+__ TestComment4_DispatcherValidation.test_dispatcher_validates_output_schema __
+tests\test_phase5_fixes.py:191: in test_dispatcher_validates_output_schema
+    dispatcher = ToolDispatcher(mock_registry, MagicMock(), AsyncMock(), AsyncMock())
+packages\tools\dispatcher.py:45: in dispatch
+    raise PermissionDeniedError(f"Ghost confirmation denied or timed out for '{tool_name}'")
+E   packages.tools.dispatcher.PermissionDeniedError: Ghost confirmation denied or timed out for 'test_tool'
+___________________ TestComment6_NISTTool.test_nist_parsing ___________________
+tests\test_phase5_fixes.py:197: in test_nist_parsing
+    class TestComment6_NISTTool:
+packages\tools\che\nist_mcp.py:6: in <module>
+    from packages.tools.schemas.nist_schema import NISTInput, NISTOutput
+packages\tools\__init__.py:7: in <module>
+    registry.auto_discover()
+packages\tools\registry.py:50: in auto_discover
+    che
+E   AttributeError: module 'packages' has no attribute 'tools'
+============================== warnings summary ===============================
+tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_agent_s3_grounding
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\..\packages\computer_use\agent_s3.py:30: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    self.xvfb.start()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_agent_s3_grounding
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\..\packages\computer_use\agent_s3.py:68: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    self.xvfb.stop()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_phase5_fixes.py::TestComment6_NISTTool::test_nist_parsing
+  C:\Users\LOQ\AppData\Local\Programs\Python\Python310\lib\sre_parse.py:500: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    sourceget = source.get
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_phase5_fixes.py::TestComment1_ToolAutoDiscovery::test_registry_auto_discovers_tools
+FAILED tests/test_phase5_fixes.py::TestComment2_RedisAPIMismatches::test_bifrost_logging_no_attribute_error
+FAILED tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_spec_generator_uses_gemini
+FAILED tests/test_phase5_fixes.py::TestComment4_DispatcherValidation::test_dispatcher_validates_output_schema
+FAILED tests/test_phase5_fixes.py::TestComment6_NISTTool::test_nist_parsing
+============= 5 failed, 5 passed, 3 warnings in 301.87s (0:05:01) =============

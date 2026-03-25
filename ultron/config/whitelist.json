@@ -1,0 +1,16 @@
+{
+  "allowed": [
+    "/tools/*",
+    "/prompts/task_specific/*",
+    "/config/model_routing.json",
+    "/skills/generated/*"
+  ],
+  "forbidden": [
+    "/memory/restore.py",
+    "/packages/infrastructure/redis_client.py",
+    "/packages/brain/key_rotation/pool.py",
+    "/packages/execution/watchdog.py",
+    "/packages/circuit_breaker/breaker.py",
+    "/packages/brain/moa/roles.py"
+  ]
+}

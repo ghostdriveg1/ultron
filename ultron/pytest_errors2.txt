@@ -1,0 +1,64 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\LOQ\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron
+configfile: pyproject.toml
+plugins: anyio-4.8.0, dash-3.0.3, langsmith-0.4.6, asyncio-1.3.0
+asyncio: mode=auto, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 10 items
+
+tests/test_phase5_fixes.py::TestComment1_ToolAutoDiscovery::test_registry_auto_discovers_tools FAILED [ 10%]
+tests/test_phase5_fixes.py::TestComment2_RedisAPIMismatches::test_heartbeat_tick_no_attribute_error PASSED [ 20%]
+tests/test_phase5_fixes.py::TestComment2_RedisAPIMismatches::test_scheduler_pop_no_attribute_error PASSED [ 30%]
+tests/test_phase5_fixes.py::TestComment2_RedisAPIMismatches::test_bifrost_logging_no_attribute_error FAILED [ 40%]
+tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_spec_generator_uses_gemini FAILED [ 50%]
+tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_remote_work_loop_dispatches PASSED [ 60%]
+tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_agent_s3_grounding PASSED [ 70%]
+tests/test_phase5_fixes.py::TestComment4_DispatcherValidation::test_dispatcher_preserves_validation_error PASSED [ 80%]
+tests/test_phase5_fixes.py::TestComment4_DispatcherValidation::test_dispatcher_validates_output_schema 
+
+================================== FAILURES ===================================
+______ TestComment1_ToolAutoDiscovery.test_registry_auto_discovers_tools ______
+tests\test_phase5_fixes.py:10: in test_registry_auto_discovers_tools
+    from packages.tools import registry
+packages\tools\__init__.py:7: in <module>
+    registry.auto_discover()
+packages\tools\registry.py:50: in auto_discover
+    packages.tools.documents,
+E   AttributeError: module 'packages' has no attribute 'tools'
+___ TestComment2_RedisAPIMismatches.test_bifrost_logging_no_attribute_error ___
+tests\test_phase5_fixes.py:77: in test_bifrost_logging_no_attribute_error
+    res = await client.call("test_server", "test_tool", {})
+packages\mcp_gateway\bifrost_client.py:53: in call
+    headers["Content-Type"] = "application/json"
+E   TypeError: 'coroutine' object does not support item assignment
+_______ TestComment3_UnmockBackendFlows.test_spec_generator_uses_gemini _______
+tests\test_phase5_fixes.py:97: in test_spec_generator_uses_gemini
+    assert mock_gen.call_count == 1
+E   AssertionError: assert 0 == 1
+E    +  where 0 = <AsyncMock name='generate' id='2480634983520'>.call_count
+---------------------------- Captured stdout call -----------------------------
+Executing Spec Engine Prompt 1...
+Validation failed for stage 1. Triggering LATS retry logic.
+============================== warnings summary ===============================
+tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_agent_s3_grounding
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\..\packages\computer_use\agent_s3.py:30: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    self.xvfb.start()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_agent_s3_grounding
+  C:\Users\LOQ\OneDrive\Desktop\ultron_complete_docs\ultron\tests\..\packages\computer_use\agent_s3.py:68: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    self.xvfb.stop()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_phase5_fixes.py::TestComment1_ToolAutoDiscovery::test_registry_auto_discovers_tools
+FAILED tests/test_phase5_fixes.py::TestComment2_RedisAPIMismatches::test_bifrost_logging_no_attribute_error
+FAILED tests/test_phase5_fixes.py::TestComment3_UnmockBackendFlows::test_spec_generator_uses_gemini
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+C:\Users\LOQ\AppData\Local\Programs\Python\Python310\lib\site-packages\backports\asyncio\runner\runner.py:180: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+=================== 3 failed, 5 passed, 2 warnings in 1.56s ===================

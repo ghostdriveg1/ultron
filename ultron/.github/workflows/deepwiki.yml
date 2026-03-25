@@ -1,0 +1,28 @@
+name: DeepWiki Sync
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight
+  workflow_dispatch:
+
+jobs:
+  sync_wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Trigger Markdown Generation
+        run: |
+          pip install httpx
+          python -c "
+          import httpx
+          import os
+          httpx.post('https://ultron.api/sync-wiki', headers={'Authorization': f'Bearer {os.getenv(\"ULTRON_TOKEN\")}'})
+          "
+        env:
+          ULTRON_TOKEN: ${{ secrets.ULTRON_API_KEY }}
