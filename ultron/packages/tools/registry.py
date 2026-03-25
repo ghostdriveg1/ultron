@@ -56,7 +56,11 @@ class ToolRegistry:
                     full_module_name = f"{pkg.__name__}.{module_name}"
                     try:
                         module = importlib.import_module(full_module_name)
-                    except ImportError:
+                    except ImportError as e:
+                        import logging
+                        logging.getLogger("ultron.tools").warning(
+                            f"Skipping tool {full_module_name}: {e}"  # FIXED: isolate bad tools
+                        )
                         continue
                     # Find all classes in the module that inherit from BaseTool (but aren't BaseTool itself)
                     for name, obj in inspect.getmembers(module, inspect.isclass):
