@@ -1,6 +1,6 @@
 import os
 import httpx
-from git import Repo, InvalidGitRepositoryError, GitCommandError
+from git import Repo, GitCommandError, InvalidGitRepositoryError
 
 from packages.tools.base_tool import BaseTool
 from packages.tools.schemas.git_schema import GitInput, GitOutput

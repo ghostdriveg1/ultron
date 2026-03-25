@@ -13,7 +13,7 @@ from packages.brain.key_rotation.provider_clients import GeminiClient
 from packages.brain.puter_opus_caller import PuterOpusCaller
 from packages.tools.code.tester_tool import TesterTool
 from packages.tools.code.linter_tool import LinterTool
-from packages.execution.e2b_manager import E2BSandboxManager
+from packages.execution.e2b_sandbox import E2BSandboxManager
 
 class Evolver:
     """Main coordinator for the AlphaEvolve genetic algorithm loop."""
