@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultron v3 — Config Setup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #0a0a0b;
+    --surface: #111114;
+    --card: #16161a;
+    --border: #2a2a32;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --green: #22c55e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); }
+
+  .progress-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .progress-track {
+    width: 200px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .main { max-width: 900px; margin: 0 auto; padding: 40px 24px 120px; }
+
+  .intro {
+    margin-bottom: 40px;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+  }
+  .intro h1 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+  .intro p { font-size: 14px; color: var(--muted); line-height: 1.7; font-family: 'JetBrains Mono', monospace; }
+  .intro p strong { color: var(--accent2); }
+
+  .section {
+    margin-bottom: 32px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    padding: 16px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-purple { background: var(--accent); }
+  .dot-teal { background: var(--accent2); }
+  .dot-amber { background: var(--warn); }
+  .dot-red { background: var(--danger); }
+  .dot-green { background: var(--green); }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--border);
+    color: var(--muted);
+  }
+
+  .section-body { padding: 20px 24px; }
+
+  .field-group {
+    margin-bottom: 20px;
+  }
+  .field-group:last-child { margin-bottom: 0; }
+
+  .field-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .field-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    opacity: 0.6;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  input[type="text"], input[type="password"], textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+  input[type="text"].filled, input[type="password"].filled {
+    border-color: var(--green);
+    color: var(--green);
+  }
+  input::placeholder { color: var(--muted); opacity: 0.5; }
+
+  .multi-grid {
+    display: grid;
+    gap: 8px;
+  }
+  .multi-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .multi-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    gap: 10px;
+  }
+  .multi-row-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  .generate-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 200;
+  }
+
+  .btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #7c74ff; transform: translateY(-1px); }
+  .btn-secondary {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-teal {
+    background: var(--accent2);
+    color: #000;
+  }
+  .btn-teal:hover { opacity: 0.85; }
+
+  .status-msg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    flex: 1;
+  }
+  .status-msg.ok { color: var(--green); }
+  .status-msg.warn { color: var(--warn); }
+
+  .output-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+  .output-modal.open { display: flex; }
+  .output-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 720px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .output-header {
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .output-header h3 { font-size: 14px; font-weight: 600; }
+  .output-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  textarea.env-out {
+    width: 100%;
+    min-height: 400px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--accent2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+    padding: 16px;
+    border-radius: 8px;
+    resize: none;
+  }
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .close-btn:hover { color: var(--text); }
+
+  .tip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 6px;
+    padding: 6px 10px;
+    background: var(--surface);
+    border-radius: 4px;
+    border-left: 2px solid var(--accent);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">ULTRON <span>v3</span> — Config Setup</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">0 / 0 filled</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="intro">
+    <h1>Paste your API keys here 👇</h1>
+    <p>Fill in each box below. Every field you fill turns <strong>green</strong>. When done, click <strong>Generate .env</strong> at the bottom. Copy the output and save it as your <strong>.env</strong> file inside the ultron folder. That's it.</p>
+  </div>
+
+  <!-- GEMINI -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-purple"></div>Google Gemini API Keys</div>
+      <span class="badge">20 accounts — Gemini 2.5 Pro + Flash</span>
+    </div>
+    <div class="section-body">
+      <p class="field-hint" style="margin-bottom:16px;font-size:11px;color:var(--muted);">Go to aistudio.google.com → Get API key. Each account gives you a separate key. Paste them below one by one.</p>
+      <div class="multi-grid" id="gemini-grid"></div>
+    </div>
+  </div>
+
+  <!-- GROQ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-teal"></div>Groq API Keys</div>
+      <span class="badge">10 accounts</span>
+    </div>
+    <div class="section-body">
+      <p class="field-hint" style="margin-bottom:16px;font-size:11px;color:var(--muted);">Go to console.groq.com → API Keys → Create Key.</p>
+      <div class="multi-grid" id="groq-grid"></div>
+    </div>
+  </div>
+
+  <!-- CEREBRAS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-amber"></div>Cerebras API Keys</div>
+      <span class="badge">5 accounts</span>
+    </div>
+    <div class="section-body">
+      <p class="field-hint" style="margin-bottom:16px;font-size:11px;color:var(--muted);">Go to cloud.cerebras.ai → API Keys.</p>
+      <div class="multi-grid" id="cerebras-grid"></div>
+    </div>
+  </div>
+
+  <!-- TOGETHER AI -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-green"></div>Together AI Keys</div>
+      <span class="badge">5 accounts</span>
+    </div>
+    <div class="section-body">
+      <p class="field-hint" style="margin-bottom:16px;font-size:11px;color:var(--muted);">Go to api.together.xyz → Settings → API Keys.</p>
+      <div class="multi-grid" id="together-grid"></div>
+    </div>
+  </div>
+
+  <!-- UPSTASH REDIS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-red"></div>Upstash Redis</div>
+      <span class="badge">console.upstash.com → Redis → Create DB</span>
+    </div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field-label">Redis REST URL <span class="field-hint">— looks like https://xxx.upstash.io</span></div>
+        <input type="text" id="UPSTASH_REDIS_REST_URL" placeholder="https://xxx-xxx.upstash.io" data-env="UPSTASH_REDIS_REST_URL">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Redis REST Token <span class="field-hint">— long string starting with AX...</span></div>
+        <input type="password" id="UPSTASH_REDIS_REST_TOKEN" placeholder="AXxxxxxxxxxxxxxxxx" data-env="UPSTASH_REDIS_REST_TOKEN">
+      </div>
+    </div>
+  </div>
+
+  <!-- UPSTASH QSTASH -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-purple"></div>Upstash QStash</div>
+      <span class="badge">console.upstash.com → QStash</span>
+    </div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field-label">QStash Token</div>
+        <input type="password" id="QSTASH_TOKEN" placeholder="eyJVc2VySUQiOi..." data-env="QSTASH_TOKEN">
+      </div>
+      <div class="field-group">
+        <div class="field-label">QStash Current Signing Key</div>
+        <input type="password" id="QSTASH_CURRENT_SIGNING_KEY" placeholder="sig_..." data-env="QSTASH_CURRENT_SIGNING_KEY">
+      </div>
+      <div class="field-group">
+        <div class="field-label">QStash Next Signing Key</div>
+        <input type="password" id="QSTASH_NEXT_SIGNING_KEY" placeholder="sig_..." data-env="QSTASH_NEXT_SIGNING_KEY">
+      </div>
+    </div>
+  </div>
+
+  <!-- ZILLIZ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-teal"></div>Zilliz Cloud (Vector DB)</div>
+      <span class="badge">15 accounts — cloud.zilliz.com</span>
+    </div>
+    <div class="section-body">
+      <p class="field-hint" style="margin-bottom:16px;font-size:11px;color:var(--muted);">For each account: cloud.zilliz.com → Cluster → Connect → copy the Public Endpoint (URI) and API Key (Token).</p>
+      <div id="zilliz-grid"></div>
+    </div>
+  </div>
+
+  <!-- DISCORD -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-purple"></div>Discord Bot</div>
+      <span class="badge">discord.com/developers</span>
+    </div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field-label">Bot Token <span class="field-hint">— Applications → Your Bot → Bot → Reset Token</span></div>
+        <input type="password" id="DISCORD_BOT_TOKEN" placeholder="MTxxxxxxxxxxxxxx.Gxxxxx.xxx" data-env="DISCORD_BOT_TOKEN">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Guild (Server) ID <span class="field-hint">— Right-click your server → Copy Server ID</span></div>
+        <input type="text" id="DISCORD_GUILD_ID" placeholder="123456789012345678" data-env="DISCORD_GUILD_ID">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Discord Channel ID <span class="field-hint">— Right-click channel → Copy Channel ID</span></div>
+        <input type="text" id="DISCORD_CHANNEL_ID" placeholder="123456789012345678" data-env="DISCORD_CHANNEL_ID">
+      </div>
+    </div>
+  </div>
+
+  <!-- GITHUB -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-amber"></div>GitHub</div>
+      <span class="badge">ultron-agent account only — NOT your personal account</span>
+    </div>
+    <div class="section-body">
+      <div class="tip" style="margin-bottom:16px;">⚠ Use the ultron-agent GitHub account for this. Go to github.com → Settings → Developer Settings → Personal Access Tokens → Fine-grained token.</div>
+      <div class="field-group">
+        <div class="field-label">GitHub Token (ultron-agent)</div>
+        <input type="password" id="GITHUB_TOKEN" placeholder="github_pat_xxxxxxxxxxxx" data-env="GITHUB_TOKEN">
+      </div>
+      <div class="field-group">
+        <div class="field-label">GitHub Repo Owner</div>
+        <input type="text" id="GITHUB_REPO_OWNER" placeholder="ultron-agent" data-env="GITHUB_REPO_OWNER">
+      </div>
+      <div class="field-group">
+        <div class="field-label">GitHub Repo Name</div>
+        <input type="text" id="GITHUB_REPO_NAME" placeholder="ultron" data-env="GITHUB_REPO_NAME">
+      </div>
+    </div>
+  </div>
+
+  <!-- CLAWCLOUD -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-teal"></div>ClawCloud Run — 3 Instances</div>
+      <span class="badge">ap-southeast-1.run.claw.cloud</span>
+    </div>
+    <div class="section-body">
+      <p class="field-hint" style="margin-bottom:16px;font-size:11px;color:var(--muted);">After deploying each service on ClawCloud, paste the public URL it gives you below.</p>
+      <div class="field-group">
+        <div class="field-label">Brain Agent URL <span class="field-hint">— Instance 1</span></div>
+        <input type="text" id="BRAIN_AGENT_URL" placeholder="https://xxxx.ap-southeast-1.run.claw.cloud" data-env="BRAIN_AGENT_URL">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Memory Agent URL <span class="field-hint">— Instance 2</span></div>
+        <input type="text" id="MEMORY_AGENT_URL" placeholder="https://xxxx.ap-southeast-1.run.claw.cloud" data-env="MEMORY_AGENT_URL">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Execution Agent URL <span class="field-hint">— Instance 3</span></div>
+        <input type="text" id="EXECUTION_AGENT_URL" placeholder="https://xxxx.ap-southeast-1.run.claw.cloud" data-env="EXECUTION_AGENT_URL">
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOUDFLARE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-amber"></div>Cloudflare</div>
+      <span class="badge">dash.cloudflare.com</span>
+    </div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field-label">Account ID <span class="field-hint">— Right sidebar on any Cloudflare page</span></div>
+        <input type="text" id="CLOUDFLARE_ACCOUNT_ID" placeholder="abcdef1234567890abcdef1234567890" data-env="CLOUDFLARE_ACCOUNT_ID">
+      </div>
+      <div class="field-group">
+        <div class="field-label">API Token <span class="field-hint">— My Profile → API Tokens → Create Token</span></div>
+        <input type="password" id="CLOUDFLARE_API_TOKEN" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxx" data-env="CLOUDFLARE_API_TOKEN">
+      </div>
+      <div class="field-group">
+        <div class="field-label">KV Namespace ID <span class="field-hint">— Workers & Pages → KV → your namespace → ID</span></div>
+        <input type="text" id="CLOUDFLARE_KV_NAMESPACE_ID" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" data-env="CLOUDFLARE_KV_NAMESPACE_ID">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Worker Name</div>
+        <input type="text" id="CLOUDFLARE_WORKER_NAME" placeholder="ultron-edge" data-env="CLOUDFLARE_WORKER_NAME">
+      </div>
+    </div>
+  </div>
+
+  <!-- MEM0 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-green"></div>Mem0 + E2B</div>
+      <span class="badge">Optional memory + sandbox</span>
+    </div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field-label">Mem0 API Key <span class="field-hint">— app.mem0.ai → API Keys</span></div>
+        <input type="password" id="MEM0_API_KEY" placeholder="m0-xxxxxxxxxxxxxxxx" data-env="MEM0_API_KEY">
+      </div>
+      <div class="field-group">
+        <div class="field-label">E2B API Key <span class="field-hint">— e2b.dev → Dashboard → API Key</span></div>
+        <input type="password" id="E2B_API_KEY" placeholder="e2b_xxxxxxxxxxxx" data-env="E2B_API_KEY">
+      </div>
+    </div>
+  </div>
+
+  <!-- MISC -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><div class="dot dot-purple"></div>General Settings</div>
+      <span class="badge">App-level config</span>
+    </div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field-label">Environment</div>
+        <input type="text" id="ENVIRONMENT" placeholder="production" data-env="ENVIRONMENT" value="production">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Log Level</div>
+        <input type="text" id="LOG_LEVEL" placeholder="INFO" data-env="LOG_LEVEL" value="INFO">
+      </div>
+      <div class="field-group">
+        <div class="field-label">AES Encryption Key <span class="field-hint">— any 32-character random string for KV encryption</span></div>
+        <input type="password" id="ENCRYPTION_KEY" placeholder="32-char-random-key-here-xxxxxxxx" data-env="ENCRYPTION_KEY">
+        <div class="tip" style="margin-top:8px;">Generate one: open any password manager and make a 32-char random password. Keep it safe — losing this key = losing all stored data.</div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Spec Poll Timeout (seconds)</div>
+        <input type="text" id="SPEC_POLL_TIMEOUT" placeholder="300" data-env="SPEC_POLL_TIMEOUT" value="300">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="generate-bar">
+  <span class="status-msg" id="statusMsg">Fill in your API keys above, then generate your .env file.</span>
+  <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+  <button class="btn btn-secondary" onclick="previewEnv()">Preview .env</button>
+  <button class="btn btn-primary" onclick="generateAndDownload()">⬇ Download .env</button>
+  <button class="btn btn-teal" onclick="copyEnv()">Copy to Clipboard</button>
+</div>
+
+<!-- OUTPUT MODAL -->
+<div class="output-modal" id="outputModal">
+  <div class="output-box">
+    <div class="output-header">
+      <h3>Your .env file — copy everything below</h3>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="output-content">
+      <textarea class="env-out" id="envOutput" readonly></textarea>
+      <div style="margin-top:12px;display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="copyFromModal()">Copy All</button>
+        <button class="btn btn-teal" onclick="generateAndDownload()">Download File</button>
+        <span id="copyConfirm" style="font-family:monospace;font-size:12px;color:var(--green);display:none;align-self:center;">✓ Copied!</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Build dynamic grids
+  function makeKeyGrid(containerId, prefix, count, envPrefix) {
+    const grid = document.getElementById(containerId);
+    for (let i = 1; i <= count; i++) {
+      const row = document.createElement('div');
+      row.className = 'multi-row';
+      row.innerHTML = `
+        <div class="multi-row-label">${prefix} #${i}</div>
+        <input type="password" placeholder="Paste API key for account ${i}" 
+               data-env="${envPrefix}_${i}" id="${envPrefix}_${i}"
+               oninput="onInput(this)">
+      `;
+      grid.appendChild(row);
+    }
+  }
+
+  function makeZillizGrid() {
+    const grid = document.getElementById('zilliz-grid');
+    for (let i = 1; i <= 15; i++) {
+      const block = document.createElement('div');
+      block.style.cssText = 'margin-bottom:12px;';
+      block.innerHTML = `
+        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:0.06em;">ZILLIZ ACCOUNT ${i}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="text" placeholder="https://xxx.api.gcp-us-west1.zillizcloud.com" 
+                 data-env="ZILLIZ_URI_${i}" id="ZILLIZ_URI_${i}" oninput="onInput(this)">
+          <input type="password" placeholder="API Token / Key" 
+                 data-env="ZILLIZ_TOKEN_${i}" id="ZILLIZ_TOKEN_${i}" oninput="onInput(this)">
+        </div>
+      `;
+      grid.appendChild(block);
+    }
+  }
+
+  makeKeyGrid('gemini-grid', 'Gemini', 20, 'GEMINI_API_KEY');
+  makeKeyGrid('groq-grid', 'Groq', 10, 'GROQ_API_KEY');
+  makeKeyGrid('cerebras-grid', 'Cerebras', 5, 'CEREBRAS_API_KEY');
+  makeKeyGrid('together-grid', 'Together', 5, 'TOGETHER_API_KEY');
+  makeZillizGrid();
+
+  // Add oninput to static fields
+  document.querySelectorAll('input[data-env]').forEach(el => {
+    el.addEventListener('input', () => onInput(el));
+  });
+
+  function onInput(el) {
+    if (el.value.trim()) {
+      el.classList.add('filled');
+    } else {
+      el.classList.remove('filled');
+    }
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const all = document.querySelectorAll('input[data-env]');
+    const filled = [...all].filter(el => el.value.trim()).length;
+    const pct = Math.round((filled / all.length) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = `${filled} / ${all.length} filled`;
+    const msg = document.getElementById('statusMsg');
+    if (pct === 100) {
+      msg.textContent = '✓ All fields filled! Ready to generate.';
+      msg.className = 'status-msg ok';
+    } else if (pct > 0) {
+      msg.textContent = `${pct}% complete — keep going!`;
+      msg.className = 'status-msg warn';
+    } else {
+      msg.textContent = 'Fill in your API keys above, then generate your .env file.';
+      msg.className = 'status-msg';
+    }
+  }
+
+  function buildEnvContent() {
+    const sections = [
+      { label: 'GEMINI API KEYS (20 accounts)', keys: Array.from({length:20},(_,i)=>`GEMINI_API_KEY_${i+1}`) },
+      { label: 'GROQ API KEYS (10 accounts)', keys: Array.from({length:10},(_,i)=>`GROQ_API_KEY_${i+1}`) },
+      { label: 'CEREBRAS API KEYS (5 accounts)', keys: Array.from({length:5},(_,i)=>`CEREBRAS_API_KEY_${i+1}`) },
+      { label: 'TOGETHER AI KEYS (5 accounts)', keys: Array.from({length:5},(_,i)=>`TOGETHER_API_KEY_${i+1}`) },
+      { label: 'UPSTASH REDIS', keys: ['UPSTASH_REDIS_REST_URL','UPSTASH_REDIS_REST_TOKEN'] },
+      { label: 'UPSTASH QSTASH', keys: ['QSTASH_TOKEN','QSTASH_CURRENT_SIGNING_KEY','QSTASH_NEXT_SIGNING_KEY'] },
+      { label: 'ZILLIZ CLOUD (15 accounts)', keys: [
+        ...Array.from({length:15},(_,i)=>`ZILLIZ_URI_${i+1}`),
+        ...Array.from({length:15},(_,i)=>`ZILLIZ_TOKEN_${i+1}`)
+      ]},
+      { label: 'DISCORD', keys: ['DISCORD_BOT_TOKEN','DISCORD_GUILD_ID','DISCORD_CHANNEL_ID'] },
+      { label: 'GITHUB (ultron-agent only)', keys: ['GITHUB_TOKEN','GITHUB_REPO_OWNER','GITHUB_REPO_NAME'] },
+      { label: 'CLAWCLOUD URLS', keys: ['BRAIN_AGENT_URL','MEMORY_AGENT_URL','EXECUTION_AGENT_URL'] },
+      { label: 'CLOUDFLARE', keys: ['CLOUDFLARE_ACCOUNT_ID','CLOUDFLARE_API_TOKEN','CLOUDFLARE_KV_NAMESPACE_ID','CLOUDFLARE_WORKER_NAME'] },
+      { label: 'MEM0 + E2B', keys: ['MEM0_API_KEY','E2B_API_KEY'] },
+      { label: 'GENERAL SETTINGS', keys: ['ENVIRONMENT','LOG_LEVEL','ENCRYPTION_KEY','SPEC_POLL_TIMEOUT'] },
+    ];
+
+    let out = `# ═══════════════════════════════════════════════\n`;
+    out += `# ULTRON v3 — Environment Configuration\n`;
+    out += `# Generated: ${new Date().toLocaleString()}\n`;
+    out += `# DO NOT COMMIT THIS FILE TO GITHUB\n`;
+    out += `# ═══════════════════════════════════════════════\n\n`;
+
+    sections.forEach(s => {
+      out += `# ─── ${s.label} ───\n`;
+      s.keys.forEach(k => {
+        const el = document.getElementById(k);
+        const val = el ? el.value.trim() : '';
+        out += `${k}=${val || 'YOUR_KEY_HERE'}\n`;
+      });
+      out += '\n';
+    });
+
+    return out;
+  }
+
+  function previewEnv() {
+    document.getElementById('envOutput').value = buildEnvContent();
+    document.getElementById('outputModal').classList.add('open');
+  }
+
+  function generateAndDownload() {
+    const content = buildEnvContent();
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '.env';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function copyEnv() {
+    const content = buildEnvContent();
+    navigator.clipboard.writeText(content).then(() => {
+      const msg = document.getElementById('statusMsg');
+      msg.textContent = '✓ Copied to clipboard! Paste into your .env file.';
+      msg.className = 'status-msg ok';
+      setTimeout(updateProgress, 3000);
+    });
+  }
+
+  function copyFromModal() {
+    const content = document.getElementById('envOutput').value;
+    navigator.clipboard.writeText(content).then(() => {
+      const c = document.getElementById('copyConfirm');
+      c.style.display = 'inline';
+      setTimeout(() => c.style.display = 'none', 2000);
+    });
+  }
+
+  function closeModal() {
+    document.getElementById('outputModal').classList.remove('open');
+  }
+
+  function clearAll() {
+    if (!confirm('Clear all filled keys?')) return;
+    document.querySelectorAll('input[data-env]').forEach(el => {
+      if (!['production','INFO','300'].includes(el.defaultValue)) {
+        el.value = '';
+        el.classList.remove('filled');
+      }
+    });
+    updateProgress();
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>

@@ -6,6 +6,7 @@ import {
   FolderGit2,
   Brain,
   Settings as SettingsIcon,
+  Key,
 } from 'lucide-react';
 
 import Dashboard from './pages/Dashboard';
@@ -29,6 +30,7 @@ const navItems = [
   { to: '/projects', icon: FolderGit2, label: 'Projects' },
   { to: '/memory', icon: Brain, label: 'Memory' },
   { to: '/settings', icon: SettingsIcon, label: 'Settings' },
+  { to: '/config-setup.html', icon: Key, label: 'API Config', external: true },
 ];
 
 export default function App() {
@@ -46,22 +48,34 @@ export default function App() {
             </div>
 
             <div className="flex-1 py-4">
-              {navItems.map(({ to, icon: Icon, label }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-6 py-3 text-sm transition-colors ${
-                      isActive
-                        ? 'text-cyan-400 bg-cyan-400/10 border-r-2 border-cyan-400'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                    }`
-                  }
-                >
-                  <Icon size={18} />
-                  {label}
-                </NavLink>
-              ))}
+              {navItems.map(({ to, icon: Icon, label, external }: any) => {
+                const className = ({ isActive }: any) =>
+                  `flex items-center gap-3 px-6 py-3 text-sm transition-colors ${
+                    isActive
+                      ? 'text-cyan-400 bg-cyan-400/10 border-r-2 border-cyan-400'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`;
+
+                if (external) {
+                  return (
+                    <a
+                      key={to}
+                      href={to}
+                      className="flex items-center gap-3 px-6 py-3 text-sm transition-colors text-gray-400 hover:text-white hover:bg-gray-800"
+                    >
+                      <Icon size={18} />
+                      {label}
+                    </a>
+                  );
+                }
+
+                return (
+                  <NavLink key={to} to={to} className={className}>
+                    <Icon size={18} />
+                    {label}
+                  </NavLink>
+                );
+              })}
             </div>
 
             <div className="p-4 border-t border-gray-800 text-xs text-gray-600">
