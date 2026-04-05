@@ -5,8 +5,8 @@ compatibility_date = "2026-03-23"
 # ─── KV Namespace Binding ────────────────────────────────────
 [[kv_namespaces]]
 binding = "KV"
-id = "YOUR_KV_NAMESPACE_ID"
-preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
+id = "a18a2443832b457ba9bea2864ed39c6c"
+preview_id = "b09ecbf669a5434d9d898a700f68cfd1"
 
 # ─── Routes ──────────────────────────────────────────────────
 # routes = [{ pattern = "ultron.yourdomain.com/*", zone_name = "yourdomain.com" }]

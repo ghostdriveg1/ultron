@@ -8,12 +8,12 @@
     "tail": "wrangler tail"
   },
   "dependencies": {
-    "hono": "^4.0.0",
     "@cloudflare/workers-types": "^4.0.0",
-    "discord-interactions": "^3.0.0"
+    "discord-interactions": "^3.0.0",
+    "hono": "^4.12.10"
   },
   "devDependencies": {
-    "wrangler": "^3.0.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "wrangler": "^3.0.0"
   }
 }

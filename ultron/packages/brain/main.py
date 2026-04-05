@@ -127,6 +127,13 @@ async def run_task(request: Request) -> JSONResponse:
 
     try:
         result = await _dispatcher.dispatch(payload)
+        # Send Discord reply if LLM succeeded
+        reply_args = result.pop("_reply", None)
+        if reply_args:
+            try:
+                await _dispatcher._send_discord_reply(*reply_args)
+            except Exception as de:
+                logger.warning(f"Discord send failed (non-fatal): {de}")
         return JSONResponse(content=result)
     except Exception as e:
         logger.exception(f"Dispatch error: {e}")
@@ -136,3 +143,4 @@ async def run_task(request: Request) -> JSONResponse:
 @app.get("/")
 async def root() -> dict[str, str]:
     return {"service": "Ultron Brain Agent", "version": "3.0.0", "status": "running"}
+# patch applied via append — handled in dispatch

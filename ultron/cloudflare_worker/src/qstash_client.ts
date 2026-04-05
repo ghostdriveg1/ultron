@@ -1,35 +1,30 @@
-// ─── Ultron v3 — QStash Client ───────────────────────────────
-// Publishes tasks to QStash for async delivery to ClawCloud Brain.
-
+// Ultron v3 - QStash Client
 import type { Env, TaskPayload } from './types';
 
-/**
- * Publish a task to QStash for async delivery to the Brain agent.
- * Retries up to 3 times with exponential backoff on failure.
- *
- * @param task - The task payload to publish
- * @param env - Worker environment bindings
- * @returns The QStash message ID on success
- * @throws Error if all retries fail
- */
-export async function publishTask(
-  task: TaskPayload,
-  env: Env
-): Promise<string> {
+export async function publishTask(task: TaskPayload, env: Env): Promise<string> {
   const maxRetries = 3;
   const backoffMs = [1000, 2000, 4000];
 
+  const brainPayload = {
+    message: task.payload.message,
+    user_id: task.payload.user_id,
+    channel_id: task.payload.channel_id,
+    task_id: task.task_id,
+    task_type: task.type,
+  };
+
+  const qstashUrl = `https://qstash.upstash.io/v2/publish/${encodeURIComponent(env.CLAWCLOUD_BRAIN_URL + '/run')}`;
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const response = await fetch(env.QSTASH_URL, {
+      const response = await fetch(qstashUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${env.QSTASH_TOKEN}`,
           'Content-Type': 'application/json',
-          'Upstash-Destination': env.CLAWCLOUD_BRAIN_URL,
           'Upstash-Retries': '3',
         },
-        body: JSON.stringify(task),
+        body: JSON.stringify(brainPayload),
       });
 
       if (!response.ok) {
@@ -38,32 +33,14 @@ export async function publishTask(
 
       const result = (await response.json()) as { messageId: string };
       return result.messageId;
+
     } catch (err) {
       if (attempt < maxRetries - 1) {
-        // Wait with exponential backoff before retrying
         await new Promise((resolve) => setTimeout(resolve, backoffMs[attempt]));
       } else {
-        // All retries failed — log error to KV and throw
-        try {
-          await env.KV.put(
-            `errors:qstash:${Date.now()}`,
-            JSON.stringify({
-              task_id: task.task_id,
-              error: String(err),
-              timestamp: new Date().toISOString(),
-              attempts: maxRetries,
-            })
-          );
-        } catch {
-          // KV write failure is non-critical; swallow
-        }
-        throw new Error(
-          `QStash publish failed after ${maxRetries} attempts: ${err}`
-        );
+        throw new Error(`QStash publish failed after ${maxRetries} attempts: ${err}`);
       }
     }
   }
-
-  // TypeScript requires a return, but this is unreachable
   throw new Error('Unreachable');
 }
